@@ -1,0 +1,498 @@
+{
+  "info": {
+    "name": "SifenAPI - Testing Local",
+    "description": "Colección completa para probar la API de facturación electrónica SIFEN",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "test-key-12345",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "item": [
+        {
+          "name": "Health - Estado general",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health - Ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health - SIFEN Connection",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health/sifen",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health", "sifen"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Facturas",
+      "item": [
+        {
+          "name": "Crear Factura - Ejemplo Básico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"cdc\", jsonData.cdc);",
+                  "    pm.environment.set(\"xmlUrl\", jsonData.xmlUrl);",
+                  "    pm.environment.set(\"pdfUrl\", jsonData.pdfUrl);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": 1,\n  \"tipoEmision\": 1,\n  \"tipoContribuyente\": 1,\n  \"ambiente\": 2,\n  \"establecimiento\": \"001\",\n  \"puntoExpedicion\": \"001\",\n  \"numero\": \"0000001\",\n  \"fecha\": \"2024-01-15T10:30:00\",\n  \"tipoTransaccion\": 1,\n  \"tipoImpuesto\": 1,\n  \"moneda\": \"PYG\",\n  \"emisor\": {\n    \"ruc\": \"80012345-6\",\n    \"razonSocial\": \"MI EMPRESA S.A.\",\n    \"nombreFantasia\": \"Mi Empresa\",\n    \"direccion\": \"Av. Mariscal López 123\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-123456\",\n    \"email\": \"facturacion@miempresa.com.py\"\n  },\n  \"receptor\": {\n    \"tipoDocumento\": 1,\n    \"numeroDocumento\": \"80087654-3\",\n    \"razonSocial\": \"CLIENTE S.A.\",\n    \"direccion\": \"Calle Palma 456\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-654321\",\n    \"email\": \"cliente@cliente.com.py\"\n  },\n  \"items\": [\n    {\n      \"codigo\": \"PROD001\",\n      \"descripcion\": \"Notebook HP 15-dy1036nr\",\n      \"cantidad\": 1,\n      \"unidadMedida\": \"UNI\",\n      \"precioUnitario\": 5000000,\n      \"montoTotal\": 5000000,\n      \"afectacionTributaria\": 1,\n      \"porcentajeIva\": 10,\n      \"montoIva\": 454545\n    }\n  ],\n  \"totales\": {\n    \"subTotal\": 5000000,\n    \"totalIva10\": 454545,\n    \"totalIva5\": 0,\n    \"totalExenta\": 0,\n    \"total\": 5000000\n  },\n  \"condicionVenta\": {\n    \"tipo\": 1,\n    \"plazo\": \"Contado\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/facturas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "facturas"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Factura - Múltiples Items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": 1,\n  \"tipoEmision\": 1,\n  \"tipoContribuyente\": 1,\n  \"ambiente\": 2,\n  \"establecimiento\": \"001\",\n  \"puntoExpedicion\": \"001\",\n  \"numero\": \"0000002\",\n  \"fecha\": \"2024-01-15T11:00:00\",\n  \"tipoTransaccion\": 3,\n  \"tipoImpuesto\": 1,\n  \"moneda\": \"PYG\",\n  \"emisor\": {\n    \"ruc\": \"80012345-6\",\n    \"razonSocial\": \"MI EMPRESA S.A.\",\n    \"nombreFantasia\": \"Mi Empresa\",\n    \"direccion\": \"Av. Mariscal López 123\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-123456\",\n    \"email\": \"facturacion@miempresa.com.py\"\n  },\n  \"receptor\": {\n    \"tipoDocumento\": 1,\n    \"numeroDocumento\": \"80087654-3\",\n    \"razonSocial\": \"CLIENTE S.A.\",\n    \"direccion\": \"Calle Palma 456\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-654321\",\n    \"email\": \"cliente@cliente.com.py\"\n  },\n  \"items\": [\n    {\n      \"codigo\": \"PROD001\",\n      \"descripcion\": \"Notebook HP 15-dy1036nr\",\n      \"cantidad\": 2,\n      \"unidadMedida\": \"UNI\",\n      \"precioUnitario\": 5000000,\n      \"montoTotal\": 10000000,\n      \"afectacionTributaria\": 1,\n      \"porcentajeIva\": 10,\n      \"montoIva\": 909091\n    },\n    {\n      \"codigo\": \"SERV001\",\n      \"descripcion\": \"Servicio de instalación y configuración\",\n      \"cantidad\": 1,\n      \"unidadMedida\": \"UNI\",\n      \"precioUnitario\": 500000,\n      \"montoTotal\": 500000,\n      \"afectacionTributaria\": 1,\n      \"porcentajeIva\": 10,\n      \"montoIva\": 45455\n    },\n    {\n      \"codigo\": \"ACC001\",\n      \"descripcion\": \"Mouse inalámbrico Logitech\",\n      \"cantidad\": 2,\n      \"unidadMedida\": \"UNI\",\n      \"precioUnitario\": 150000,\n      \"montoTotal\": 300000,\n      \"afectacionTributaria\": 1,\n      \"porcentajeIva\": 10,\n      \"montoIva\": 27273\n    }\n  ],\n  \"totales\": {\n    \"subTotal\": 10800000,\n    \"totalIva10\": 981819,\n    \"totalIva5\": 0,\n    \"totalExenta\": 0,\n    \"total\": 10800000\n  },\n  \"condicionVenta\": {\n    \"tipo\": 1,\n    \"plazo\": \"Contado\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/facturas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "facturas"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Factura - A Crédito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": 1,\n  \"tipoEmision\": 1,\n  \"tipoContribuyente\": 1,\n  \"ambiente\": 2,\n  \"establecimiento\": \"001\",\n  \"puntoExpedicion\": \"001\",\n  \"numero\": \"0000003\",\n  \"fecha\": \"2024-01-15T12:00:00\",\n  \"tipoTransaccion\": 1,\n  \"tipoImpuesto\": 1,\n  \"moneda\": \"PYG\",\n  \"emisor\": {\n    \"ruc\": \"80012345-6\",\n    \"razonSocial\": \"MI EMPRESA S.A.\",\n    \"nombreFantasia\": \"Mi Empresa\",\n    \"direccion\": \"Av. Mariscal López 123\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-123456\",\n    \"email\": \"facturacion@miempresa.com.py\"\n  },\n  \"receptor\": {\n    \"tipoDocumento\": 1,\n    \"numeroDocumento\": \"80087654-3\",\n    \"razonSocial\": \"CLIENTE S.A.\",\n    \"direccion\": \"Calle Palma 456\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-654321\",\n    \"email\": \"cliente@cliente.com.py\"\n  },\n  \"items\": [\n    {\n      \"codigo\": \"PROD002\",\n      \"descripcion\": \"Impresora Multifunción HP\",\n      \"cantidad\": 1,\n      \"unidadMedida\": \"UNI\",\n      \"precioUnitario\": 2500000,\n      \"montoTotal\": 2500000,\n      \"afectacionTributaria\": 1,\n      \"porcentajeIva\": 10,\n      \"montoIva\": 227273\n    }\n  ],\n  \"totales\": {\n    \"subTotal\": 2500000,\n    \"totalIva10\": 227273,\n    \"totalIva5\": 0,\n    \"totalExenta\": 0,\n    \"total\": 2500000\n  },\n  \"condicionVenta\": {\n    \"tipo\": 2,\n    \"plazo\": \"30 días\",\n    \"cuotas\": [\n      {\n        \"numeroCuota\": 1,\n        \"monto\": 1250000,\n        \"fechaVencimiento\": \"2024-02-15\"\n      },\n      {\n        \"numeroCuota\": 2,\n        \"monto\": 1250000,\n        \"fechaVencimiento\": \"2024-03-15\"\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/facturas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "facturas"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Facturas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/facturas?page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "facturas"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Factura por CDC",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/facturas/{{cdc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "facturas", "{{cdc}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Consultas",
+      "item": [
+        {
+          "name": "Consultar por CDC",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consultas/cdc/{{cdc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "consultas", "cdc", "{{cdc}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar por RUC",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consultas/ruc/80012345-6?fechaDesde=2024-01-01&fechaHasta=2024-01-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "consultas", "ruc", "80012345-6"],
+              "query": [
+                {
+                  "key": "fechaDesde",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "fechaHasta",
+                  "value": "2024-01-31"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consulta Pública (sin autenticación)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/consultas/publica/{{cdc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "consultas", "publica", "{{cdc}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Documentos",
+      "item": [
+        {
+          "name": "Descargar XML",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/documentos/xml/{{cdc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "documentos", "xml", "{{cdc}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Descargar PDF (KUDE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/documentos/pdf/{{cdc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "documentos", "pdf", "{{cdc}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener QR Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/documentos/qr/{{cdc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "documentos", "qr", "{{cdc}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Eventos",
+      "item": [
+        {
+          "name": "Cancelar Documento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cdc\": \"{{cdc}}\",\n  \"motivo\": \"Error en el monto facturado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/eventos/cancelacion",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "eventos", "cancelacion"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inutilizar Rango de Números",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"establecimiento\": \"001\",\n  \"puntoExpedicion\": \"001\",\n  \"numeroInicio\": \"0000100\",\n  \"numeroFin\": \"0000150\",\n  \"motivo\": \"Talonarios extraviados\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/eventos/inutilizacion",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "eventos", "inutilizacion"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Notas de Crédito",
+      "item": [
+        {
+          "name": "Crear Nota de Crédito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": 5,\n  \"tipoEmision\": 1,\n  \"ambiente\": 2,\n  \"establecimiento\": \"001\",\n  \"puntoExpedicion\": \"001\",\n  \"numero\": \"0000001\",\n  \"fecha\": \"2024-01-15T14:00:00\",\n  \"cdcReferencia\": \"{{cdc}}\",\n  \"motivoEmision\": \"Devolución de mercadería\",\n  \"emisor\": {\n    \"ruc\": \"80012345-6\",\n    \"razonSocial\": \"MI EMPRESA S.A.\",\n    \"nombreFantasia\": \"Mi Empresa\",\n    \"direccion\": \"Av. Mariscal López 123\",\n    \"ciudad\": \"Asunción\",\n    \"telefono\": \"021-123456\",\n    \"email\": \"facturacion@miempresa.com.py\"\n  },\n  \"receptor\": {\n    \"tipoDocumento\": 1,\n    \"numeroDocumento\": \"80087654-3\",\n    \"razonSocial\": \"CLIENTE S.A.\"\n  },\n  \"items\": [\n    {\n      \"codigo\": \"PROD001\",\n      \"descripcion\": \"Notebook HP 15-dy1036nr (devolución)\",\n      \"cantidad\": 1,\n      \"unidadMedida\": \"UNI\",\n      \"precioUnitario\": 5000000,\n      \"montoTotal\": 5000000,\n      \"afectacionTributaria\": 1,\n      \"porcentajeIva\": 10,\n      \"montoIva\": 454545\n    }\n  ],\n  \"totales\": {\n    \"subTotal\": 5000000,\n    \"totalIva10\": 454545,\n    \"total\": 5000000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notas-credito",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notas-credito"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Procesamiento por Lotes",
+      "item": [
+        {
+          "name": "Enviar Lote de Facturas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentos\": [\n    {\n      \"tipoDocumento\": 1,\n      \"ambiente\": 2,\n      \"establecimiento\": \"001\",\n      \"puntoExpedicion\": \"001\",\n      \"numero\": \"0000010\",\n      \"emisor\": { \"ruc\": \"80012345-6\", \"razonSocial\": \"MI EMPRESA S.A.\" },\n      \"receptor\": { \"numeroDocumento\": \"80087654-3\", \"razonSocial\": \"CLIENTE 1 S.A.\" },\n      \"items\": [{ \"codigo\": \"P1\", \"descripcion\": \"Producto 1\", \"cantidad\": 1, \"precioUnitario\": 100000, \"montoTotal\": 100000 }],\n      \"totales\": { \"total\": 100000 }\n    },\n    {\n      \"tipoDocumento\": 1,\n      \"ambiente\": 2,\n      \"establecimiento\": \"001\",\n      \"puntoExpedicion\": \"001\",\n      \"numero\": \"0000011\",\n      \"emisor\": { \"ruc\": \"80012345-6\", \"razonSocial\": \"MI EMPRESA S.A.\" },\n      \"receptor\": { \"numeroDocumento\": \"80087655-4\", \"razonSocial\": \"CLIENTE 2 S.A.\" },\n      \"items\": [{ \"codigo\": \"P2\", \"descripcion\": \"Producto 2\", \"cantidad\": 1, \"precioUnitario\": 200000, \"montoTotal\": 200000 }],\n      \"totales\": { \"total\": 200000 }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lotes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "lotes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar Estado del Lote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lotes/{{loteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

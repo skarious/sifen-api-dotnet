@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  sifenapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"  # Accesible en http://localhost:8080
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Test
+      - ASPNETCORE_URLS=http://+:80
+    volumes:
+      - ./certificados:/app/certificados:ro
+      - ./storage:/app/storage
+      - ./src/SifenApi.WebApi/appsettings.Test.json:/app/appsettings.Test.json:ro
+    depends_on:
+      - sqlserver
+      - redis
+    restart: unless-stopped
+    networks:
+      - sifen-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "SifenTest123!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+    networks:
+      - sifen-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - sifen-network
+
+volumes:
+  sqlserver_data:
+  redis_data:
+
+networks:
+  sifen-network:
+    driver: bridge
